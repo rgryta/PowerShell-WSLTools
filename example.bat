@@ -1,0 +1,1 @@
+powershell.exe "Start-Process pwsh -Verb RunAs -ArgumentList '-NoExit -ExecutionPolicy Bypass -file %~dp0\example.ps1'"
