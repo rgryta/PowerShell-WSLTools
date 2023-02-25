@@ -1,0 +1,13 @@
+PSTOPIC
+    about_WSLTools
+
+SHORT DESCRIPTION
+    WSLTools is a set of PowerShell functions that allow you to install WSL images
+
+LONG DESCRIPTION
+    WSLTools is a set of PowerShell functions that allow you to verify if WSL can be installed, perform quiet installation and deploy fresh Linux images straight from source.
+
+DETAILED DESCRIPTION
+    This module can do several things other than simply installing WSL images. You can specify whether to restart your computer and continue your script. You can verify if HyperV is enabled, and enable it if not. Same with WSL installation.
+	
+	Main feature is that you can install any available Ubuntu and/or Alpine Linux images as WSL images. No third parties, straight from official repositories. You can perform quiet installation, which will try to install the newest version, or you can launch scripts in -Interactive mode, which will ask you which version to grab and install.
