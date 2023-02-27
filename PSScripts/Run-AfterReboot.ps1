@@ -13,7 +13,7 @@ function Run-AfterReboot
 	Write-ColorOutput yellow '[Warning] Your computer will restart in 5s'
 	Start-Sleep -Seconds 5
 
-	Write-ColorOutput red '[Warning] Restarting...'
+	Write-ColorOutput yellow '[Warning] Restarting...'
 	Start-Sleep -Seconds 1
 	Restart-Computer -Force
 }
