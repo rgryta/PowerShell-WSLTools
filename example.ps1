@@ -1,6 +1,7 @@
-New-Item –ItemType directory –Path "$(Get-Location)\PSDependencies"  -ErrorAction SilentlyContinue | Out-Null
+Remove-Item -Path "$(Get-Location)\PSDependencies" -Recurse  -ErrorAction SilentlyContinue  | Out-Null
+New-Item -ItemType directory -Path "$(Get-Location)\PSDependencies"  -ErrorAction SilentlyContinue | Out-Null
 if (-Not (Test-Path -Path "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1")) {
-	Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rgryta/PowerShell-Tools/main/PSScripts/Ensure-PSDependency.ps1" -OutFile "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1"
+	Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rgryta/PowerShell-Tools/dev/PSDependencies/Ensure-PSDependency.ps1" -OutFile "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1"
 }
 . "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1"
 
@@ -8,8 +9,11 @@ if (-Not (Test-Path -Path "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps
 "WSL-Ubuntu-Install" | Ensure-PSDependency
 . ".\PSDependencies\WSL-Ubuntu-Install.ps1"
 
+WSL-Ubuntu-Install -InstallPath . -DistroAlias ubuntu
 
 
+# Ensure-NewPS Example:
+# Ensure-NewPS -Git -Interactive -Install
 
 # Ensure-HyperV  Example:
 # if (-Not (Ensure-HyperV)) {
