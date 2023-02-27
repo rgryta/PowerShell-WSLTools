@@ -1,7 +1,7 @@
 function Ensure-PSDependency 
 {
 	begin {
-		New-Item –ItemType directory –Path "$(Get-Location)\PSDependencies"  -ErrorAction SilentlyContinue | Out-Null
+		New-Item -ItemType directory -Path "$(Get-Location)\PSDependencies" -ErrorAction SilentlyContinue | Out-Null
 	}
 	process {
 		if (Get-Command "$_" -errorAction SilentlyContinue) {

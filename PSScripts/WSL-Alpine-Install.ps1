@@ -9,7 +9,7 @@ function WSL-Alpine-Install
 		throw "Ensure-PSDependency is not available"
 	}
 	
-	if (-Not $(Get-Command 'Write-ColorOutput' -errorAction SilentlyContinue)) {
+	if (-Not $(Get-Command "Write-ColorOutput" -errorAction SilentlyContinue)) {
 		"Write-ColorOutput" | Ensure-PSDependency
 		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
 	}
@@ -19,13 +19,31 @@ function WSL-Alpine-Install
 		. "$(Get-Location)\PSDependencies\Ensure-WSL.ps1"
 	}
 	
-	if (-not $(Ensure-WSL)) {
-		Write-ColorOutput red "WSL not installed"
+	if (-Not $(Get-Command 'Invoke-WebParseable' -errorAction SilentlyContinue)) {
+		"Invoke-WebParseable" | Ensure-PSDependency
+		. "$(Get-Location)\PSDependencies\Invoke-WebParseable.ps1"
+	}
+	
+	if (-Not $(Get-Command 'Get-Select' -errorAction SilentlyContinue)) {
+		"Get-Select" | Ensure-PSDependency
+		. "$(Get-Location)\PSDependencies\Get-Select.ps1"
+	}
+	
+	try {
+		$wsl = Ensure-WSL
+	}
+	catch {
+		Write-ColorOutput red "[ERROR] Elevated access needed to check WSL settings"
+		return $false
+	}
+
+	if (-not $wsl) {
+		Write-ColorOutput red "[ERROR] WSL not installed"
 		return $false
 	}
 	
 	if (-not($DistroAlias -match '^[^\s\\/]*$')) {
-		Write-ColorOutput red "Provided DistroAlias contains whitespace or slash/backslash characters"
+		Write-ColorOutput red "[ERROR] Provided DistroAlias contains whitespace or slash/backslash characters"
 		return $false
 	}
 	
@@ -37,33 +55,23 @@ function WSL-Alpine-Install
 	if ($PSBoundParameters.ContainsKey('InstallPath')) {
 		if (Test-Path -Path $InstallPath) {
 			if ( (Get-Item $InstallPath) -isnot [System.IO.DirectoryInfo]) {
-				Write-ColorOutput red "Provided InstallPath is not a directory"
+				Write-ColorOutput red "[ERROR] Provided InstallPath is not a directory"
 				return $false
 			}
 		}
 		if (-not(Test-Path -Path $InstallPath)) {
-			Write-ColorOutput red "Provided InstallPath is does not exist"
+			Write-ColorOutput red "[ERROR] Provided InstallPath is does not exist"
 			return $false
 		}
 	}
 	
 	# Get all alpine versions
-	$versions = (Invoke-WebRequest https://dl-cdn.alpinelinux.org/alpine/ -UseBasicParsing).Content
-	$HTML = New-Object -Com "HTMLFile"
-	try {
-		$HTML.IHTMLDocument2_write($versions)
-		
-		$ihtml = $true
+	$ihtml, $versions = Invoke-WebParseable -Uri https://dl-cdn.alpinelinux.org/alpine/
+	if ($ihtml) {
 		$prop = "IHTMLAnchorElement_pathname"
-		$versions = $HTML
 	}
-	catch {
-		$ihtml = $false
+	if (-not $ihtml) {
 		$prop = "pathname"
-		
-		$src = [System.Text.Encoding]::Unicode.GetBytes($versions)
-		$HTML.write($src)
-		$versions = $HTML.body
 	}
 	
 	# Only get links that match path: v[number].[number]/
@@ -71,23 +79,8 @@ function WSL-Alpine-Install
 	$parsed_versions = $versions | Select -ExpandProperty $prop | % { New-Object System.Version ($($_ -replace 'v' -replace '/')) } | Sort
 	
 	if ($Interactive) {
-		Write-ColorOutput yellow "Select which Alpine version you'd like to install:"
-		$parsed_versions | % {$i=0} {"`t $($i+1)) $($_)"; $i++}
-		Do {
-			$selected = Read-Host -Prompt "Select"
-			$validated = $false
-			if ($selected -match '^[0-9]+$') {
-				$selected = [int]$selected
-				if ($selected -gt 0 -And $selected -le $parsed_versions.Count) {
-					$validated = $true
-				}
-			}
-		}
-		Until ($validated)
-		
-		$selected = $parsed_versions | Select -Index $($selected - 1)
+		$($selected = Get-Select -Prompt "[OPER] Select which Alpine version you'd like to install:" -Options $parsed_versions)
 	}
-	
 	# Get latest
 	if (-not $Interactive) {
 		$selected = $parsed_versions.item($($parsed_versions.Count - 1))
@@ -95,45 +88,29 @@ function WSL-Alpine-Install
 	
 	$selected = $versions | Where-Object -Property $prop -Like -Value "*$($selected.toString())*"
 	
-	# Grab available modifications of alpine image (minimal/net etc.)
+	# Grab available modifications of alpine image (minimal/net etc.) - Sometimes results return null, so do until everything is available
 	$selver = $selected | Select-Object -ExpandProperty $prop
-	$modifications = (Invoke-WebRequest https://dl-cdn.alpinelinux.org/alpine/$($selver)releases/x86_64/).Content
-	$HTML = New-Object -Com "HTMLFile"
-	
-	if ($ihtml) {
-		$HTML.IHTMLDocument2_write($modifications)
-		$modifications = $HTML
+	Do {
+		$ihtml, $modifications = Invoke-WebParseable -Uri https://dl-cdn.alpinelinux.org/alpine/$($selver)releases/x86_64/
+		$modifications = $modifications.getElementsByTagName("a") | Where-Object {$_.$prop -like "*.tar.gz"}  | Sort-Object -Property $prop
+		$verif = $modifications |  Where-Object { $_.$prop -eq $null }
 	}
-	if (-not $ihtml) {
-		$src = [System.Text.Encoding]::Unicode.GetBytes($modifications)
-		$HTML.write($src)
-		$modifications = $HTML.body
+	Until ($verif.Count -eq 0)
+	if ($verif -eq $null -And $modifications.Count -eq 0) {
+		Write-ColorOutput red "[ERROR] No supported images found for selected version (.tar.gz files)"
+		return $false
 	}
 	
 	# Only interested in .tar.gz images (maybe iso support next (?))
-	$modifications = $modifications.getElementsByTagName("a") | Where-Object {$_.$prop -like "*.tar.gz"} | Sort-Object -Property $prop
 	
 	$parsed_modifications = $modifications | Select -ExpandProperty $prop | % { $_ | Select-String -Pattern '(?:[^-]*-){3}' } | % { $_.Matches } | % { $_.Value  -replace '.$' } | Sort
 	
 	if ($Interactive) {
-		Write-ColorOutput yellow "Select which modification:"
-		$parsed_modifications | % {$i=0} {"`t $($i+1)) $($_)"; $i++}
-		Do {
-			$selected = Read-Host -Prompt "Select"
-			$validated = $false
-			if ($selected -match '^[0-9]+$') {
-				$selected = [int]$selected
-				if ($selected -gt 0 -And $selected -le $parsed_modifications.Count) {
-					$validated = $true
-				}
-			}
-		}
-		Until ($validated)
-		$selected = $parsed_modifications | Select -Index $($selected - 1)
+		$($selected = Get-Select -Prompt "[OPER] Select which modification:" -Options $parsed_modifications)
 	}
 	# Get latest minirootfs
 	if (-not $Interactive) {
-		$candidates = $parsed_modifications | Select-String -NoEmphasis -Pattern '.*miniroot.*'
+		$candidates = $parsed_modifications | Select-String -Pattern '.*miniroot.*'
 		$found = $candidates | % { $_ -match '\d+\.\d+\.\d+_*\w*$' } | % {$matches[0]} | Sort -Unique
 		$selected = $found.item($($found.Count - 1))
 		$selected = $candidates | Select-String -Pattern "$selected"
@@ -149,8 +126,9 @@ function WSL-Alpine-Install
 	Invoke-WebRequest -Uri https://dl-cdn.alpinelinux.org/alpine/$($selver)releases/x86_64/$selmod -OutFile "$(Get-Location)\tmp\$($DistroAlias).tar.gz"
 	
 	wsl --import $DistroAlias $InstallPath "$(Get-Location)\tmp\$($DistroAlias).tar.gz"
-	
 	Remove-Item -Path "$(Get-Location)\tmp" -Recurse | Out-Null
+	
+	wsl -d $DistroAlias -u root -e sh -c 'apt-get update && apt-get upgrade -y'
 	
 	return $true
 }

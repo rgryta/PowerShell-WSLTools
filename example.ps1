@@ -5,10 +5,10 @@ if (-Not (Test-Path -Path "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps
 . "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1"
 
 
-"WSL-Alpine-Install" | Ensure-PSDependency
-. ".\PSDependencies\WSL-Alpine-Install.ps1"
+"WSL-Ubuntu-Install" | Ensure-PSDependency
+. ".\PSDependencies\WSL-Ubuntu-Install.ps1"
 
-WSL-Alpine-Install -DistroAlias alpine -InstallPath .
+
 
 
 # Ensure-HyperV  Example:
@@ -37,4 +37,7 @@ WSL-Alpine-Install -DistroAlias alpine -InstallPath .
 # Write-ColorOutput red "Prints red string"
 
 # WSL-Alpine-Install Example:
-# WSL-Alpine-Install -DistroAlias alpine -InstallPath .
+# WSL-Alpine-Install -DistroAlias alpine -InstallPath . -Interactive
+
+# WSL-Ubuntu-Install Example:
+# WSL-Ubuntu-Install -DistroAlias ubuntu -InstallPath . -Interactive

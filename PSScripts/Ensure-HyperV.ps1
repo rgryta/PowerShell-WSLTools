@@ -12,7 +12,20 @@ function Ensure-HyperV
 		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
 	}
 	
-	$hvmissing = (Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State -ne "Enabled"
+	try {
+		$bios = Get-ComputerInfo -Property HyperVRequirementVirtualizationFirmwareEnabled | Select -Expand HyperVRequirementVirtualizationFirmwareEnabled
+		$hvmissing = (Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State -ne "Enabled"
+	}
+	catch {
+		Write-ColorOutput red "[ERROR] Elevated access needed to check HyperV settings"
+		return $false
+	}
+	
+	if ($bios -eq $false) {
+		# Enabled can be either $true or $null
+		Write-ColorOutput red "[ERROR] Virtualization disabled in BIOS"
+		return $false
+	}
 	
 	if ($Install -And $hvmissing) {
 		if ((Get-WindowsEdition -Online).Edition -ne "Home"){
