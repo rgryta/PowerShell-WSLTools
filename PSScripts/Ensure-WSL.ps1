@@ -28,5 +28,6 @@ function Ensure-WSL
 			return $false
 		}
 	}
+	wsl --set-default-version 2
 	return $true
 }

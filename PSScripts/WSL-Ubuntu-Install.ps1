@@ -1,5 +1,28 @@
-function Write-ColorOutput($ForegroundColor)
+function WSL-Ubuntu-Install
 {
+	Param(
+		[Parameter(Mandatory = $true)] [String]$Command,
+		[switch]$Install
+	)
+	if (-Not $(Get-Command 'Ensure-PSDependency' -errorAction SilentlyContinue)) {
+		throw "Ensure-PSDependency is not available"
+	}
+	
+	if (-Not $(Get-Command 'Write-ColorOutput' -errorAction SilentlyContinue)) {
+		"Write-ColorOutput" | Ensure-PSDependency
+		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
+	}
+	
+	
+	if ($Install) {
+		Write-ColorOutput red $Command
+		return 1
+	}
+	else {
+		Write-ColorOutput red $Command
+		return 0
+	}
+	
     # Getting Ubuntu:
 	$x = (Invoke-WebRequest https://git.launchpad.net/cloud-images/+oci/ubuntu-base/refs/tags).ParsedHtml.getElementsByTagName("a") | Where-Object {$_.IHTMLAnchorElement_pathname -eq "cloud-images/+oci/ubuntu-base/tag/" -And $_.IHTMLAnchorElement_search -match  '.*(i386)|(amd64).*'}
 

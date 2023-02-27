@@ -1,13 +1,14 @@
 New-Item –ItemType directory –Path "$(Get-Location)\PSDependencies"  -ErrorAction SilentlyContinue | Out-Null
-if (-Not (Test-Path -Path "$(Get-Location)\PSDependencies\$_.ps1")) {
+if (-Not (Test-Path -Path "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1")) {
 	Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rgryta/PowerShell-Tools/main/PSScripts/Ensure-PSDependency.ps1" -OutFile "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1"
 }
-
 . "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps1"
 
 
-"Ensure-WSL" | Ensure-PSDependency
-. ".\PSDependencies\Ensure-WSL.ps1"
+"WSL-Alpine-Install" | Ensure-PSDependency
+. ".\PSDependencies\WSL-Alpine-Install.ps1"
+
+WSL-Alpine-Install
 
 
 # Run-AfterReboot Example:
