@@ -79,7 +79,7 @@ function WSL-Alpine-Install
 	$parsed_versions = $versions | Select -ExpandProperty $prop | % { New-Object System.Version ($($_ -replace 'v' -replace '/')) } | Sort
 	
 	if ($Interactive) {
-		$($selected = Get-Select -Prompt "[OPER] Select which Alpine version you'd like to install:" -Options $parsed_versions)
+		$selected = Get-Select -Prompt "[OPER] Select which Alpine version you'd like to install:" -Options $parsed_versions
 	}
 	# Get latest
 	if (-not $Interactive) {
@@ -106,7 +106,7 @@ function WSL-Alpine-Install
 	$parsed_modifications = $modifications | Select -ExpandProperty $prop | % { $_ | Select-String -Pattern '(?:[^-]*-){3}' } | % { $_.Matches } | % { $_.Value  -replace '.$' } | Sort
 	
 	if ($Interactive) {
-		$($selected = Get-Select -Prompt "[OPER] Select which modification:" -Options $parsed_modifications)
+		$selected = Get-Select -Prompt "[OPER] Select which modification:" -Options $parsed_modifications
 	}
 	# Get latest minirootfs
 	if (-not $Interactive) {
@@ -128,7 +128,7 @@ function WSL-Alpine-Install
 	wsl --import $DistroAlias $InstallPath "$(Get-Location)\tmp\$($DistroAlias).tar.gz"
 	Remove-Item -Path "$(Get-Location)\tmp" -Recurse | Out-Null
 	
-	wsl -d $DistroAlias -u root -e sh -c 'apt-get update && apt-get upgrade -y'
+	wsl -d $DistroAlias -u root -e sh -c 'apk update && apk upgrade'
 	
 	return $true
 }

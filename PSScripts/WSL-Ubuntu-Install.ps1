@@ -64,7 +64,7 @@ function WSL-Ubuntu-Install
 			return $false
 		}
 	}
-	# Get all alpine versions
+	# Get all ubuntu versions
 	Do {
 		$ihtml, $versions = Invoke-WebParseable -Uri https://git.launchpad.net/cloud-images/+oci/ubuntu-base/refs/tags
 		if ($ihtml) {
@@ -85,30 +85,39 @@ function WSL-Ubuntu-Install
 		$versions = $versions.getElementsByTagName("a")
 		$parsed_versions = $versions | Where-Object {$_.$prop -eq "cloud-images/+oci/ubuntu-base/tag/" -And $_.$search -match  '.*(i386)|(amd64).*'}
 		
-		$parsed_versions = $parsed_versions | % {Write-Output $($_.$search | Select-String -Pattern 'dist\-\w+\-(i386|amd64)-\d+' )} | % { $_.Matches } | % { $_.Value }
+		$parsed_versions = $parsed_versions | % {Write-Output $($_.$search | Select-String -Pattern 'dist\-\w+\-(i386|amd64)-\d+' )} | % { $_.Matches } | % { $_.Value } 
 	
 	}
 	Until ($parsed_versions.Count -gt 0)
 	
 	if ($Interactive) {
-		$($selected = Get-Select -Prompt "[OPER] Select which Ubuntu distribution you'd like to install:" -Options $parsed_versions)
+		$selected = Get-Select -Prompt "[OPER] Select which Ubuntu distribution you'd like to install:" -Options $parsed_versions
 	}
 	# Get latest
 	if (-not $Interactive) {
-		$selected = $parsed_versions.item($($parsed_versions.Count - 1))
+		$selected = $parsed_versions | Select-String -Pattern 'dist-lunar.*' | Select-Object -Index 0
 	}
 	$selected = "?h=$selected"
-	
 	Do {
-			$ihtml, $blobs = Invoke-WebParseable -Uri https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/oci/blobs/sha256$selected
-			$sizes = $blobs.getElementsByTagName("td")| Where-Object {$_.$class -eq "ls-size"}
-			$max = ($sizes | Measure-Object -Property $innerText -maximum).maximum
-			
-			$el = $sizes | ? { $_.$innerText -eq $max}
-			$idx = [array]::IndexOf($sizes, $el)
-			
-			$blob = $blobs.getElementsByTagName("a") | Where-Object {$_.$class -eq "ls-blob"} | Select-Object -Index $idx
+		try {
+			# Trusty and Xenial have no OCI images
+			if ($selected -match '.*(trusty)|(xenial).*') {
+				$ihtml, $blobs = Invoke-WebParseable -Uri https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/$selected
+				$blob = $blobs.getElementsByTagName("a") | Where-Object {$_.href -match '.*plain.*\.tar\.gz.*'}
+			}
+			if (-not ($selected -match '.*(trusty)|(xenial).*')) {
+				$ihtml, $blobs = Invoke-WebParseable -Uri https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/oci/blobs/sha256$selected
+				$sizes = $blobs.getElementsByTagName("td")| Where-Object {$_.$class -eq "ls-size"}
+				$max = ($sizes | Measure-Object -Property $innerText -maximum).maximum
+						
+				$el = $sizes | ? { $_.$innerText -eq $max}
+				$idx = [array]::IndexOf($sizes, $el)
+				
+				$blob = $blobs.getElementsByTagName("a") | Where-Object {$_.$class -eq "ls-blob"} | Select-Object -Index $idx
+			}
 			$found = $true
+		}
+		catch {}
 	}
 	Until ($found)
 	
