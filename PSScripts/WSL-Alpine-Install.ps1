@@ -2,7 +2,8 @@ function WSL-Alpine-Install
 {
 	Param(
 		[switch]$Interactive = $false,
-		[Parameter(Mandatory = $true)] [String]$DistroAlias
+		[Parameter(Mandatory = $true)] [String]$DistroAlias,
+		[String]$InstallPath
 	)
 	if (-Not $(Get-Command 'Ensure-PSDependency' -errorAction SilentlyContinue)) {
 		throw "Ensure-PSDependency is not available"
@@ -21,6 +22,29 @@ function WSL-Alpine-Install
 	if (-not $(Ensure-WSL)) {
 		Write-ColorOutput red "WSL not installed"
 		return $false
+	}
+	
+	if (-not($DistroAlias -match '^[^\s\\/]*$')) {
+		Write-ColorOutput red "Provided DistroAlias contains whitespace or slash/backslash characters"
+		return $false
+	}
+	
+	if (-not($PSBoundParameters.ContainsKey('InstallPath'))) {
+		$InstallPath = "$(Get-Location)\install"
+		New-Item –ItemType directory –Path $InstallPath -ErrorAction SilentlyContinue | Out-Null
+	}
+	
+	if ($PSBoundParameters.ContainsKey('InstallPath')) {
+		if (Test-Path -Path $InstallPath) {
+			if ( (Get-Item $InstallPath) -isnot [System.IO.DirectoryInfo]) {
+				Write-ColorOutput red "Provided InstallPath is not a directory"
+				return $false
+			}
+		}
+		if (-not(Test-Path -Path $InstallPath)) {
+			Write-ColorOutput red "Provided InstallPath is does not exist"
+			return $false
+		}
 	}
 	
 	# Get all alpine versions
@@ -119,7 +143,14 @@ function WSL-Alpine-Install
 		
 	#Download image
 	$selmod = $selected | Select-Object -ExpandProperty $prop
-	Invoke-WebRequest -Uri https://dl-cdn.alpinelinux.org/alpine/$($selver)releases/x86_64/$selmod -OutFile alpine.tar.gz
+	
+	New-Item –ItemType directory –Path "$(Get-Location)\tmp" -ErrorAction SilentlyContinue | Out-Null
+	$ProgressPreference = 'SilentlyContinue'
+	Invoke-WebRequest -Uri https://dl-cdn.alpinelinux.org/alpine/$($selver)releases/x86_64/$selmod -OutFile "$(Get-Location)\tmp\$($DistroAlias).tar.gz"
+	
+	wsl --import $DistroAlias $InstallPath "$(Get-Location)\tmp\$($DistroAlias).tar.gz"
+	
+	Remove-Item -Path "$(Get-Location)\tmp" -Recurse | Out-Null
 	
 	return $true
 }

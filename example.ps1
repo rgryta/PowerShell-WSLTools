@@ -8,9 +8,33 @@ if (-Not (Test-Path -Path "$(Get-Location)\PSDependencies\Ensure-PSDependency.ps
 "WSL-Alpine-Install" | Ensure-PSDependency
 . ".\PSDependencies\WSL-Alpine-Install.ps1"
 
-WSL-Alpine-Install
+WSL-Alpine-Install -DistroAlias alpine -InstallPath .
 
+
+# Ensure-HyperV  Example:
+# if (-Not (Ensure-HyperV)) {
+#		return $false
+#	}
+# Returns false if Hyper-V is not enabled
+# Ensure-HyperV --Install - Installs HyperV
+
+# Ensure-PSDependency Example:
+# "WSL-Alpine-Install" | Ensure-PSDependency
+# . ".\PSDependencies\WSL-Alpine-Install.ps1"
+
+# Ensure-WSL  Example:
+# if (-Not (Ensure-WSL)) {
+#		return $false
+#	}
+# Returns false if WSL is not enabled
+# Ensure-WSL --Install - Installs WSL
 
 # Run-AfterReboot Example:
 # $command = "powershell.exe ""Start-Process pwsh -ArgumentList '-NoExit -ExecutionPolicy Bypass -file """"E:\Github\PowerShell-Tools\example2.ps1""""'"""
 # Run-AfterReboot -Command $command
+
+# Write-ColorOutput Example:
+# Write-ColorOutput red "Prints red string"
+
+# WSL-Alpine-Install Example:
+# WSL-Alpine-Install -DistroAlias alpine -InstallPath .
