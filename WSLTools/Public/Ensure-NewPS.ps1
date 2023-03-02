@@ -5,20 +5,6 @@ function Ensure-NewPS
 		[switch]$Install,
 		[switch]$Interactive = $false
 	)
-	if (-Not $(Get-Command 'Ensure-PSDependency' -errorAction SilentlyContinue)) {
-		throw "Ensure-PSDependency is not available"
-	}
-	
-	if (-Not $(Get-Command "Write-ColorOutput" -errorAction SilentlyContinue)) {
-		"Write-ColorOutput" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
-	}
-	
-	if (-Not $(Get-Command 'Get-Select' -errorAction SilentlyContinue)) {
-		"Get-Select" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Get-Select.ps1"
-	}
-	
 	if (-not $Git) {
 		try {
 			if ($(Get-AppxPackage -Name Microsoft.PowerShell*) -eq $null) {

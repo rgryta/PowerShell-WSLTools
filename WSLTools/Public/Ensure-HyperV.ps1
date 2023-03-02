@@ -3,15 +3,6 @@ function Ensure-HyperV
 	Param(
 		[switch]$Install
 	)
-	if (-Not $(Get-Command 'Ensure-PSDependency' -errorAction SilentlyContinue)) {
-		throw "Ensure-PSDependency is not available"
-	}
-	
-	if (-Not $(Get-Command 'Write-ColorOutput' -errorAction SilentlyContinue)) {
-		"Write-ColorOutput" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
-	}
-	
 	try {
 		$bios = Get-ComputerInfo -Property HyperVRequirementVirtualizationFirmwareEnabled | Select -Expand HyperVRequirementVirtualizationFirmwareEnabled
 		$hvmissing = (Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State -ne "Enabled"

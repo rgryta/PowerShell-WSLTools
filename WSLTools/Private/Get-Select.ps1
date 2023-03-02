@@ -4,14 +4,6 @@ function Get-Select
 		[Parameter(Mandatory = $true)] [String]$Prompt,
 		[Parameter(Mandatory = $true)] [String[]]$Options
 	)
-	if (-Not $(Get-Command 'Ensure-PSDependency' -errorAction SilentlyContinue)) {
-		throw "Ensure-PSDependency is not available"
-	}
-	
-	if (-Not $(Get-Command "Write-ColorOutput" -errorAction SilentlyContinue)) {
-		"Write-ColorOutput" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
-	}
 	
 	Write-ColorOutput white "$Prompt"
 	$Options | % {$i=0} {Write-ColorOutput white "`t $($i+1)) $($_)"; $i++}

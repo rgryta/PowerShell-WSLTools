@@ -3,19 +3,6 @@ function Ensure-WSL
 	Param(
 		[switch]$Install
 	)
-	if (-Not $(Get-Command "Ensure-PSDependency" -errorAction SilentlyContinue)) {
-		throw "Ensure-PSDependency is not available"
-	}
-	
-	if (-Not $(Get-Command "Write-ColorOutput" -errorAction SilentlyContinue)) {
-		"Write-ColorOutput" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
-	}
-	
-	if (-Not $(Get-Command "Ensure-HyperV" -errorAction SilentlyContinue)) {
-		"Ensure-HyperV" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Ensure-HyperV.ps1"
-	}
 	if (-Not (Ensure-HyperV)) {
 		Write-ColorOutput red "[ERROR] HyperV not installed"
 		return $false

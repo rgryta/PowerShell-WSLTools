@@ -5,30 +5,6 @@ function WSL-Alpine-Install
 		[Parameter(Mandatory = $true)] [String]$DistroAlias,
 		[String]$InstallPath
 	)
-	if (-Not $(Get-Command 'Ensure-PSDependency' -errorAction SilentlyContinue)) {
-		throw "Ensure-PSDependency is not available"
-	}
-	
-	if (-Not $(Get-Command "Write-ColorOutput" -errorAction SilentlyContinue)) {
-		"Write-ColorOutput" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Write-ColorOutput.ps1"
-	}
-	
-	if (-Not $(Get-Command 'Ensure-WSL' -errorAction SilentlyContinue)) {
-		"Ensure-WSL" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Ensure-WSL.ps1"
-	}
-	
-	if (-Not $(Get-Command 'Invoke-WebParseable' -errorAction SilentlyContinue)) {
-		"Invoke-WebParseable" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Invoke-WebParseable.ps1"
-	}
-	
-	if (-Not $(Get-Command 'Get-Select' -errorAction SilentlyContinue)) {
-		"Get-Select" | Ensure-PSDependency
-		. "$(Get-Location)\PSDependencies\Get-Select.ps1"
-	}
-	
 	try {
 		$wsl = Ensure-WSL
 	}
