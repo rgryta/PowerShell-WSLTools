@@ -12,7 +12,7 @@
 RootModule = 'WSLTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.1'
+ModuleVersion = '1.3.0'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Desktop', 'Core'
@@ -69,7 +69,7 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Ensure-HyperV', 'Ensure-NewPS', 'Ensure-WSL', 'Run-AfterReboot', 'WSL-Alpine-Install', 'WSL-Ubuntu-Install', "Get-Select"
+FunctionsToExport = 'Ensure-HyperV', 'Ensure-NewPS', 'Ensure-WSL', 'Run-AfterReboot', 'WSL-Alpine-Install', 'WSL-Ubuntu-Install', 'WSL-Debian-Install', "Get-Select"
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = "WSL", "HyperV", "Linux", "PowerShell", "Automation", "WSL2", "Ubuntu", "Alpine"
+        Tags = "WSL", "HyperV", "Linux", "PowerShell", "Automation", "WSL2", "Ubuntu", "Alpine", "Debian"
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/rgryta/PowerShell-WSLTools/blob/main/LICENSE'
