@@ -19,7 +19,7 @@ function Ensure-WSL
 	}
 	catch {
 		Write-ColorOutput red "[ERROR] Elevated access needed to check WSL settings or installation"
-		return $false
+		throw "Elevated access required"
 	}
 	$ignr = wsl --set-default-version 2
 	return $true
