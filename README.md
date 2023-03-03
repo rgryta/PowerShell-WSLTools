@@ -64,3 +64,10 @@ Deploys clean Ubuntu Linux distro into WSL. Usage is the same to WSL-Alpine-Inst
 ```powershell
 WSL-Ubuntu-Install [-Interactive] [-DistroAlias <alias>] [-InstallPath <path>]
 ```
+
+### WSL-Debian-Install
+
+Deploys clean Debian Linux distro into WSL. Usage is the same to WSL-Alpine-Install. Currently takes bullseye-full as default.
+```powershell
+WSL-Debian-Install [-Interactive] [-DistroAlias <alias>] [-InstallPath <path>]
+```
