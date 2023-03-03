@@ -3,6 +3,7 @@ function WSL-Ubuntu-Install
 	Param(
 		[switch]$Interactive = $false,
 		[Parameter(Mandatory = $true)] [String]$DistroAlias,
+		[String]$Version,
 		[String]$InstallPath
 	)
 	try {
@@ -72,7 +73,10 @@ function WSL-Ubuntu-Install
 	}
 	# Get latest
 	if (-not $Interactive) {
-		$selected = $parsed_versions | Select-String -Pattern 'dist-lunar.*' | Select-Object -Index 0
+		if (-not($PSBoundParameters.ContainsKey('Version'))) {
+			$Version = "lunar"
+		}
+		$selected = $parsed_versions | Select-String -Pattern "dist-$Version.*" | Select-Object -Index 0
 	}
 	$selected = "?h=$selected"
 	Do {
