@@ -60,9 +60,9 @@ WSL-Alpine-Install [-Interactive] [-DistroAlias <alias>] [-InstallPath <path>]
 
 ### WSL-Ubuntu-Install
 
-Deploys clean Ubuntu Linux distro into WSL. Usage is the same to WSL-Alpine-Install. Currently takes lunar as default.
+Deploys clean Ubuntu Linux distro into WSL. Usage is the same to WSL-Alpine-Install. Currently takes lunar as default. If you want to override default version, then specify -Version with lowercase release, e.g. `-Version kinetic`.
 ```powershell
-WSL-Ubuntu-Install [-Interactive] [-DistroAlias <alias>] [-InstallPath <path>]
+WSL-Ubuntu-Install [-Interactive] [-DistroAlias <alias>] [-InstallPath <path>] [-Version <release>]
 ```
 
 ### WSL-Debian-Install
