@@ -48,7 +48,7 @@ function WSL-Debian-Install
 	}
 	# Get latest
 	if (-not $Interactive) {
-		$version = "buster"
+		$version = "bookworm"
 	}
 	
 	$debian_vs = "full","slim"

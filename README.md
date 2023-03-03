@@ -19,7 +19,7 @@ Import-Module WSLTools -WarningAction SilentlyContinue
 
 ## Available functions
 
-See examples under `example.ps1`. Open `example.bat` that will launch the PS script with elevated rights.
+See example under `install-wsl.ps1`. Open `install-wsl.bat` that will launch the PS script with elevated access rights. (By the way) You can use this script to install WSL - should also work on Windows Home Editions and if it doesn't, please submit a ticket.
 
 ### Ensure-HyperV 
 
