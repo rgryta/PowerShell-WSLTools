@@ -10,17 +10,17 @@ function WSL-Alpine-Install
 	}
 	catch {
 		Write-ColorOutput red "[ERROR] Elevated access needed to check WSL settings"
-		return $false
+		throw "Elevated access required"
 	}
 
 	if (-not $wsl) {
 		Write-ColorOutput red "[ERROR] WSL not installed"
-		return $false
+		throw "WSL not installed"
 	}
 	
 	if (-not($DistroAlias -match '^[^\s\\/]*$')) {
 		Write-ColorOutput red "[ERROR] Provided DistroAlias contains whitespace or slash/backslash characters"
-		return $false
+		throw "Incorrect DistroAlias"
 	}
 	
 	if (-not($PSBoundParameters.ContainsKey('InstallPath'))) {
@@ -32,12 +32,12 @@ function WSL-Alpine-Install
 		if (Test-Path -Path $InstallPath) {
 			if ( (Get-Item $InstallPath) -isnot [System.IO.DirectoryInfo]) {
 				Write-ColorOutput red "[ERROR] Provided InstallPath is not a directory"
-				return $false
+				throw "Incorrect InstallPath"
 			}
 		}
 		if (-not(Test-Path -Path $InstallPath)) {
 			Write-ColorOutput red "[ERROR] Provided InstallPath is does not exist"
-			return $false
+			throw "Incorrect InstallPath"
 		}
 	}
 	

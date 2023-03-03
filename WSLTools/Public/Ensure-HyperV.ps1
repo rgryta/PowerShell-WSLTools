@@ -9,13 +9,13 @@ function Ensure-HyperV
 	}
 	catch {
 		Write-ColorOutput red "[ERROR] Elevated access needed to check HyperV settings"
-		return $false
+		throw "Elevated access required"
 	}
 	
 	if ($bios -eq $false) {
 		# Enabled can be either $true or $null
 		Write-ColorOutput red "[ERROR] Virtualization disabled in BIOS"
-		return $false
+		throw "BIOS setting incorrect"
 	}
 	
 	if ($Install -And $hvmissing) {
