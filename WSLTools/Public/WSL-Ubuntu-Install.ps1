@@ -63,7 +63,7 @@ function WSL-Ubuntu-Install
 		$versions = $versions.getElementsByTagName("a")
 		$parsed_versions = $versions | Where-Object {$_.$prop -eq "cloud-images/+oci/ubuntu-base/tag/" -And $_.$search -match  '.*(i386)|(amd64).*'}
 		
-		$parsed_versions = $parsed_versions | % {Write-Output $($_.$search | Select-String -Pattern 'dist\-\w+\-(i386|amd64)-\d+' )} | % { $_.Matches } | % { $_.Value } 
+		$parsed_versions = $parsed_versions | % {Write-Output $($_.$search | Select-String -Pattern 'dist\-\w+\-(i386|amd64)-\d+.*' )} | % { $_.Matches } | % { $_.Value } 
 	
 	}
 	Until ($parsed_versions.Count -gt 0)
@@ -84,7 +84,7 @@ function WSL-Ubuntu-Install
 			# Trusty and Xenial have no OCI images
 			if ($selected -match '.*(trusty)|(xenial).*') {
 				$ihtml, $blobs = Invoke-WebParseable -Uri https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/$selected
-				$blob = $blobs.getElementsByTagName("a") | Where-Object {$_.href -match '.*plain.*\.tar\.gz.*'}
+				$blob = $blobs.getElementsByTagName("a") | Where-Object {$_.$href -match '.*plain.*\.tar\.gz.*'}
 			}
 			if (-not ($selected -match '.*(trusty)|(xenial).*')) {
 				$ihtml, $blobs = Invoke-WebParseable -Uri https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/oci/blobs/sha256$selected
