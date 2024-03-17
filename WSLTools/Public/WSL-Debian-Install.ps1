@@ -42,7 +42,7 @@ function WSL-Debian-Install
 	}
 	
 	# Get which debian version
-	$debian_vs = "bookworm","bullseye","buster"
+	$debian_vs = "bookworm","bullseye","buster","trixie"
 	if ($Interactive) {
 		$version = Get-Select -Prompt "[OPER] Select which Debian distribution you'd like to install:" -Options $debian_vs
 	}
